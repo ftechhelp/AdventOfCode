@@ -39,11 +39,10 @@ def get_do_corrupted_instructions(memory) -> str:
 
 memory = ""
 
-with open('example.txt') as f:
+with open('input_data.txt') as f:
     memory = f.read()
 
 do_corrupted_instructions = get_do_corrupted_instructions(memory)
-print(do_corrupted_instructions)
 do_instructions_result = get_instructions_result(do_corrupted_instructions)
 
 print(do_instructions_result)
