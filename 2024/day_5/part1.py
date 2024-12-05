@@ -22,22 +22,15 @@ def compile_rules(raw_rules: list) -> dict:
             rules[before_number] = Rule(after_numbers={after_number})
         else:
             rules[before_number].after_numbers.add(after_number)
-
-        print(f"[{before_number}] -> {rules[before_number]}")
         
         if after_number not in rules:
             rules[after_number] = Rule(before_numbers={before_number})
         else:
             rules[after_number].before_numbers.add(before_number)
 
-        print(f"[{after_number}] -> {rules[after_number]}")
-
     return rules
 
 def is_valid_update_number(number: str, index: int, rule: Rule, list_update: list) -> bool:
-    print(f"Verifying that {number} is a valid update number")
-    print(f"Numbers that should be before it: {rule.before_numbers}")
-    print(f"Numbers that should be after it: {rule.after_numbers}")
 
     for before_number in rule.before_numbers:
 
