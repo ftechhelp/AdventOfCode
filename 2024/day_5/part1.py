@@ -1,6 +1,6 @@
 class Rule:
 
-    def __init__(self, before_numbers= set(), after_numbers = set()):
+    def __init__(self, before_numbers, after_numbers):
         self.before_numbers = before_numbers
         self.after_numbers = after_numbers
 
@@ -24,14 +24,20 @@ def compile_rules(raw_rules: list) -> dict:
         print(f"After Number: {after_number}")
 
         if before_number not in rules:
-            rules[before_number] = Rule(after_numbers={after_number})
+            rules[before_number] = Rule(set(), {after_number})
+            print(f"[{before_number}] -> Init rule with after numbers: {rules[before_number].after_numbers}")
         else:
             rules[before_number].after_numbers.add(after_number)
+            print(f"[{before_number}] -> Added {after_number} to after numbers: {rules[before_number].after_numbers}")
         
         if after_number not in rules:
-            rules[after_number] = Rule(before_numbers={before_number})
+            rules[after_number] = Rule({before_number}, set())
+            print(f"[{after_number}] -> Init rule with before numbers: {rules[after_number].before_numbers}")
         else:
             rules[after_number].before_numbers.add(before_number)
+            print(f"[{after_number}] -> Added {before_number} to before numbers: {rules[after_number].before_numbers}")
+
+        print("-----------------------------------")
 
     return rules
 
@@ -59,10 +65,10 @@ def is_valid_update_number(number: str, index: int, rule: Rule, list_update: lis
 raw_rules = []
 raw_updates = []
 
-with open('example_rules.txt') as f:
+with open('input_data_rules.txt') as f:
     raw_rules = f.read().splitlines()
 
-with open('example_updates.txt') as f:
+with open('input_data_updates.txt') as f:
     raw_updates = f.read().splitlines()
 
 rules = compile_rules(raw_rules)
@@ -80,6 +86,10 @@ for update in raw_updates:
             correct_updates += 1
 
     if correct_updates == len(list_update):
-        middle_page_numbers.append(list_update[len(list_update) // 2])
+        print("Update row is valid.")
+        print("------------------------------")
+        middle_page_numbers.append(int(list_update[len(list_update) // 2]))
+    else:
+        print("------------------------------")
 
-print(middle_page_numbers)
+print(sum(middle_page_numbers))
