@@ -32,16 +32,21 @@ def compile_rules(raw_rules: list) -> dict:
 
 def is_valid_update_number(number: str, index: int, rule: Rule, list_update: list) -> bool:
 
+    print(f"{number}")
+
     for before_number in rule.before_numbers:
 
         if before_number in list_update and list_update.index(before_number) > index:
+            print(f"Before number {before_number}, index {list_update.index(before_number)} > number index {index}")
             return False
         
     for after_number in rule.after_numbers:
 
         if after_number in list_update and list_update.index(after_number) < index:
+            print(f"After number {after_number}, index {list_update.index(after_number)} < number index {index}")
             return False
-        
+    
+    print(f"{number} does not break any ordering rules")
     return True
 
 raw_rules = []
