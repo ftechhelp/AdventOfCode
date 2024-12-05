@@ -18,6 +18,11 @@ def compile_rules(raw_rules: list) -> dict:
         before_number = before_and_after_numbers[0]
         after_number = before_and_after_numbers[1]
 
+        print(f"Rule: {rule}")
+        print(f"Before and after numbers: {before_and_after_numbers}")
+        print(f"Before Number: {before_number}")
+        print(f"After Number: {after_number}")
+
         if before_number not in rules:
             rules[before_number] = Rule(after_numbers={after_number})
         else:
@@ -38,12 +43,14 @@ def is_valid_update_number(number: str, index: int, rule: Rule, list_update: lis
 
         if before_number in list_update and list_update.index(before_number) > index:
             print(f"Before number {before_number}, index {list_update.index(before_number)} > number index {index}")
+            print(f"[{number}] -> {rule}")
             return False
         
     for after_number in rule.after_numbers:
 
         if after_number in list_update and list_update.index(after_number) < index:
             print(f"After number {after_number}, index {list_update.index(after_number)} < number index {index}")
+            print(f"[{number}] -> {rule}")
             return False
     
     print(f"{number} does not break any ordering rules")
