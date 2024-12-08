@@ -62,53 +62,62 @@ def is_valid_update_number(number: str, index: int, rule: Rule, list_update: lis
     print(f"{number} does not break any ordering rules")
     return True
 
-def is_valid_update_number(number: str, index: int, rule: Rule, list_update: list) -> bool:
-
-    print(f"{number}")
-
-    for before_number in rule.before_numbers:
-
-        if before_number in list_update and list_update.index(before_number) > index:
-            print(f"Before number {before_number}, index {list_update.index(before_number)} > number index {index}")
-            print(f"[{number}] -> {rule}")
-
-            return False
-        
-    for after_number in rule.after_numbers:
-
-        if after_number in list_update and list_update.index(after_number) < index:
-            print(f"After number {after_number}, index {list_update.index(after_number)} < number index {index}")
-            print(f"[{number}] -> {rule}")
-            return False
+def correct_update_order(update: list, rules: dict) -> list:
+    corrected_update = update.copy()
     
-    print(f"{number} does not break any ordering rules")
-    return True
+    changed = True
+    while changed:
+        changed = False
+        
+        for i in range(len(corrected_update) - 1):
+
+            for j in range(i + 1, len(corrected_update)):
+                current_number = corrected_update[i]
+                later_number = corrected_update[j]
+                
+                current_number_rule = rules[current_number]
+                
+                if later_number in current_number_rule.before_numbers:
+                    corrected_update[i], corrected_update[j] = corrected_update[j], corrected_update[i]
+                    changed = True
+                    break
+            
+            if changed:
+                break
+    
+    return corrected_update
 
 raw_rules = []
 raw_updates = []
 
-with open('example_rules.txt') as f:
+with open('input_data_rules.txt') as f:
     raw_rules = f.read().splitlines()
 
-with open('example_updates.txt') as f:
+with open('input_data_updates.txt') as f:
     raw_updates = f.read().splitlines()
 
 rules = compile_rules(raw_rules)
 middle_page_numbers = []
-invalid_update_rows = []
 
 for update in raw_updates:
     list_update = update.split(",")
+    correct_updates = 0
     
     for i in range(len(list_update)):
         current_number = list_update[i]
         rule = rules[current_number]
 
-        if not is_valid_update_number(current_number, i, rule, list_update):
-            invalid_update_rows.append(list_update)
-            break
+        if is_valid_update_number(current_number, i, rule, list_update):
+            correct_updates += 1
 
-print(invalid_update_rows)
-            
+    if correct_updates != len(list_update):
+        corrected_update = correct_update_order(list_update, rules)
 
+        print(corrected_update)
+        print("------------------------------")
 
+        middle_page_numbers.append(int(corrected_update[len(corrected_update) // 2]))
+    else:
+        print("------------------------------")
+
+print(sum(middle_page_numbers))
