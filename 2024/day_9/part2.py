@@ -36,7 +36,7 @@ class SpaceCompacterProgram:
                 for i in range(int(data)):
                     decompressed_disk_map.append(".")
         self.id_groups = OrderedDict(reversed(list(self.id_groups.items())))
-
+        print(f"Decompressed Disk Map Length: {len(decompressed_disk_map)}")
         return decompressed_disk_map
     
     def _fragment(self) -> list:
