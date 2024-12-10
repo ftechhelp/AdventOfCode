@@ -90,7 +90,6 @@ class SpaceCompacterProgram:
         checksum = 0
 
         for index, data in enumerate(fragmented_disk_map):
-            #print(fragmented_disk_map)
 
             if data == ".":
                 continue
