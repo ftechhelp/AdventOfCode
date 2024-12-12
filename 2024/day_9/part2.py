@@ -35,13 +35,14 @@ class SpaceCompacterProgram:
 
                 for i in range(int(data)):
                     decompressed_disk_map.append(".")
+        
         self.id_groups = OrderedDict(reversed(list(self.id_groups.items())))
         print(f"Decompressed Disk Map Length: {len(decompressed_disk_map)}")
         return decompressed_disk_map
     
     def _fragment(self) -> list:
         decompressed_disk_map = self._get_decompressed_disk_map()
-        #print(f"Decompressed Disk Map: {decompressed_disk_map}")
+        print(f"Decompressed Disk Map: {decompressed_disk_map}")
         #print(f"Empty Space Indexes: {self.empty_space_indexes}")
         #print(f"ID Groups: {self.id_groups}")
 
@@ -54,13 +55,17 @@ class SpaceCompacterProgram:
             for empty_space_start_index, space_index_and_count in self.empty_space_indexes.items():
 
                 if space_index_and_count[0] == None:
-                    #print(f"No more space at index {empty_space_start_index}")
+                    print(f"No more space at index {empty_space_start_index}")
                     continue
+
+                if space_index_and_count[0] > group_start_index:
+                    print(f"We are looking for empty space past file id {file_id} (Empty space index: {space_index_and_count[0]}, Group Start Index: {group_start_index})")
+                    break
 
                 space_count = int(space_index_and_count[1])
 
                 if group_count > space_count: #space too small, check next one
-                    #print(f"Space too small ({space_count}) for file id {file_id} ({group_count}). Skipping...")
+                    print(f"Space too small ({space_count}) for file id {file_id} ({group_count}). Skipping...")
                     continue
 
                 #update disk map
@@ -70,7 +75,7 @@ class SpaceCompacterProgram:
                 for i in range(group_start_index, group_start_index + group_count):
                     decompressed_disk_map[i] = "."
 
-                #print(f"Moved file ID {file_id}, update disk map: {decompressed_disk_map}")
+                print(f"Moved file ID {file_id}, update disk map: {decompressed_disk_map}")
                 
                 #update empty space
                 if space_count - group_count == 0:
@@ -78,7 +83,7 @@ class SpaceCompacterProgram:
                     break
 
                 self.empty_space_indexes[empty_space_start_index] = (int(space_index_and_count[1]) + (group_count - 1), str(space_count - group_count))
-                #print(f"Updated empty space: {self.empty_space_indexes[empty_space_start_index]}")
+                print(f"Updated empty space: {self.empty_space_indexes[empty_space_start_index]}")
                 
                 break
         
@@ -86,7 +91,7 @@ class SpaceCompacterProgram:
     
     def get_updated_filesystem_checksum(self):
         fragmented_disk_map = self._fragment()
-        #print(f"Fragmented Disk Map: {fragmented_disk_map}")
+        print(f"Fragmented Disk Map: {fragmented_disk_map}")
         checksum = 0
 
         for index, data in enumerate(fragmented_disk_map):
@@ -103,7 +108,7 @@ class SpaceCompacterProgram:
 
 disk_map = ""
 
-with open('input_data.txt') as f:
+with open('test_case_2.txt') as f:
     disk_map = f.read()
 
 program = SpaceCompacterProgram(disk_map)
