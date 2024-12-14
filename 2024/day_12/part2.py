@@ -6,7 +6,14 @@ class Navigate:
     down = (0, 1)
     directions = [left, right, up, down]
 
-    def is_valid_position(self, map: list, position: tuple):
+    up_left_corner = (-0.5, -0.5)
+    up_right_corner = (0.5, -0.5)
+    down_left_corner = (-0.5, 0.5)
+    down_right_corner = (0.5, 0.5)
+
+    corners = [up_left_corner, up_right_corner, down_left_corner, down_right_corner]
+
+    def is_valid_position(self, map: list, position: tuple) -> bool:
 
         x, y = position
 
@@ -23,50 +30,14 @@ class Plot:
         self.position = position
         self.plant_type = plant_type
 
-    def get_perimeter(self, map: list) -> set:
+    def get_corners(self) -> set:
 
-        perimeter = set()
+        corners = set()
 
-        for direction in Navigate().directions:
-            
-            next_position = Navigate().get_next_position(direction, self.position)
+        for corner in Navigate().corners:
+            corners.add(Navigate().get_next_position(corner, self.position))
 
-            if not Navigate().is_valid_position(map, next_position) or map[next_position[1]][next_position[0]] != self.plant_type:
-                
-                x, y = self.position
-
-                if direction == Navigate().left:
-
-                    if not Navigate().is_valid_position(map, next_position):
-                        perimeter.add(f"LN")
-                    else:
-                        perimeter.add(f"L{x}")
-
-                elif direction == Navigate().right:
-
-                    if not Navigate().is_valid_position(map, next_position):
-                        perimeter.add(f"RN")
-                    else:
-                        perimeter.add(f"R{x}")
-
-                elif direction == Navigate().up:
-
-                    if not Navigate().is_valid_position(map, next_position):
-                        perimeter.add(f"UN")
-                    else:
-                        perimeter.add(f"U{y}")
-
-                elif direction == Navigate().down:
-
-                    if not Navigate().is_valid_position(map, next_position):
-                        perimeter.add(f"DN")
-                    else:
-                        perimeter.add(f"D{y}")
-
-        print(f"Plot {self.position} Plant Type: {self.plant_type} Perimeter: {perimeter}")
-
-        return perimeter
-
+        return corners
 class Region:
 
     def __init__(self, map: list, plant_type: str):
@@ -77,12 +48,29 @@ class Region:
 
     def get_perimiter(self) -> int:
 
-        total_perimiter = set()
+        possible_region_corners = set()
 
         for plot in self.plots:
-            total_perimiter = total_perimiter.union(plot.get_perimeter(self.map))
+            possible_region_corners = possible_region_corners.union(plot.get_corners())
 
-        return len(total_perimiter)
+        plot_positions = [plot.position for plot in self.plots]
+
+        region_corner = 0
+
+        for corner_x, corner_y in possible_region_corners:
+            is_touching_region_plot_or_empty_spot_map = [(plot_x, plot_y) in plot_positions for plot_x, plot_y in [(corner_x - 0.5, corner_y - 0.5), (corner_x - 0.5, corner_y + 0.5), (corner_x + 0.5, corner_y + 0.5), (corner_x + 0.5, corner_y - 0.5)] ] # check if corner is touching region plot or empty spot map of plots around it
+            number_of_touching_plots = sum(is_touching_region_plot_or_empty_spot_map)
+
+            if number_of_touching_plots == 1:
+                region_corner += 1
+            elif number_of_touching_plots == 2:
+
+                if is_touching_region_plot_or_empty_spot_map == [True, False, True, False] or is_touching_region_plot_or_empty_spot_map == [False, True, False, True]:
+                    region_corner += 2
+            elif number_of_touching_plots == 3:
+                region_corner += 1
+
+        return region_corner
 
     def get_area(self) -> int:
 
@@ -155,7 +143,6 @@ for region in garden_plot_map.regions:
 
 print(f"Total Fence Cost: {garden_plot_map.get_total_fence_cost()}")
 #########################################################
-
 x_o_example_map = []
 
 with open('x_o_example.txt') as f:
@@ -171,7 +158,6 @@ for region in garden_plot_map.regions:
 
 print(f"Total Fence Cost: {garden_plot_map.get_total_fence_cost()}")
 #########################################################
-
 e_example_map = []
 
 with open('e_example.txt') as f:
@@ -204,7 +190,6 @@ for region in garden_plot_map.regions:
 
 print(f"Total Fence Cost: {garden_plot_map.get_total_fence_cost()}")
 ########################################################
-"""
 map = []
 
 with open('input_data.txt') as f:
@@ -219,4 +204,3 @@ garden_plot_map.get_regions()
 #    print(f"Plant Type: {region.plant_type} Area: {region.get_area()} Perimeter: {region.get_perimiter()} Fence Cost: {region.get_fence_cost()}")
 
 print(f"Total Fence Cost: {garden_plot_map.get_total_fence_cost()}")
-"""
