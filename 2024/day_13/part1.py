@@ -54,6 +54,8 @@ with open('input_data.txt') as f:
 machines: list[ClawMachine] = []
 machine_makeup = []
 
+
+
 for instruction in claw_machine_instructions:
 
     if instruction == "":
@@ -62,6 +64,8 @@ for instruction in claw_machine_instructions:
         continue
 
     machine_makeup.append(instruction)
+
+machines.append(ClawMachine(machine_makeup))
 
 cheapest_cost = Counter()
 
