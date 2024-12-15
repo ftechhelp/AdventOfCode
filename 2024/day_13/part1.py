@@ -1,3 +1,5 @@
+from collections import deque, Counter
+
 class Button:
 
     def __init__(self, button: str, button_programming: str):
@@ -40,35 +42,16 @@ class ClawMachine:
         self.prize = (prize_x, prize_y)
         self.claw_position = (0, 0)
 
-    def press_button_a(self, times_pressed: int = 1):
-
-        clawmoney, x, y = self.a_button.press(self.money_put_in, self.claw_position[0], self.claw_position[1], times_pressed)
-        self.money_put_in = clawmoney
-        self.claw_position = (x, y)
-
-    def press_button_b(self, times_pressed: int = 1):
-
-        clawmoney, x, y = self.b_button.press(self.money_put_in, self.claw_position[0], self.claw_position[1], times_pressed)
-        self.money_put_in = clawmoney
-        self.claw_position = (x, y)
-
-    def is_winning_position(self):
-        return self.claw_position == self.prize
-
-    def reset(self):
-        self.money_put_in = 0
-        self.claw_position = (0, 0)
-
     def __str__(self):
-        return f"{self.a_button}, {self.b_button}, Money: {self.money_put_in}, Prize: {self.prize}"
+        return f"{self.a_button}, {self.b_button}, Money: {self.money_put_in}, Prize: {self.prize}, Claw Position: {self.claw_position}"
 
 
 claw_machine_instructions = []
 
-with open('example.txt') as f:
+with open('input_data.txt') as f:
     claw_machine_instructions = f.read().splitlines()
 
-machines = []
+machines: list[ClawMachine] = []
 machine_makeup = []
 
 for instruction in claw_machine_instructions:
@@ -80,6 +63,38 @@ for instruction in claw_machine_instructions:
 
     machine_makeup.append(instruction)
 
+cheapest_cost = Counter()
 
-total_money_spent = 0
+for machine_number, machine in enumerate(machines):
 
+    queue = deque([(0, 0, 0)])  # x, y, cost
+    visited = set((0, 0))
+
+    while queue:
+        x, y, cost = queue.popleft()
+
+        if (x, y) == machine.prize:
+            print(f"Machine number {machine_number} Won!")
+            print(f"Cost: {cost}")
+            print(machine)
+
+            if cheapest_cost[machine_number] == 0 or cost < cheapest_cost[machine_number]:
+                cheapest_cost[machine_number] = cost
+        
+        #A button
+        next_x, next_y = x + machine.a_button.x, y + machine.a_button.y
+        next_cost = cost + machine.a_button.cost
+
+        if (next_x, next_y) not in visited and next_x <= machine.prize[0] and next_y <= machine.prize[1]:
+            queue.append((next_x, next_y, next_cost))
+            visited.add((next_x, next_y))
+
+        #B button
+        next_x, next_y = x + machine.b_button.x, y + machine.b_button.y
+        next_cost = cost + machine.b_button.cost
+
+        if (next_x, next_y) not in visited and next_x <= machine.prize[0] and next_y <= machine.prize[1]:
+            queue.append((next_x, next_y, next_cost))
+            visited.add((next_x, next_y))
+
+print(f"Cheapest cost for all claw machines is {sum(cheapest_cost.values())}")
