@@ -34,6 +34,12 @@ class Navigate:
         for y, row in enumerate(map):
 
             for x, cell in enumerate(row):
-                
+
                 if cell == item:
                     return (x, y)
+                
+    def get_item_at_position(self, map: list, position: tuple) -> str:
+
+        x, y = position
+
+        return map[y][x]
