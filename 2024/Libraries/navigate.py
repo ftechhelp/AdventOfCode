@@ -15,3 +15,16 @@ class Navigate:
     def get_next_position(self, direction, position):
 
         return (position[0] + direction[0], position[1] + direction[1])
+    
+    def print_map(self, map: list):
+                    
+        print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+        for row in map:
+            for cell in row:
+                print(cell, end="")
+            print()
+        print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+
+    def get_string_map(self, map: list):
+
+        return "".join("".join(row) for row in map)

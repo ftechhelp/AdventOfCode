@@ -17,6 +17,19 @@ class Navigate:
     def get_next_position(self, direction, position):
 
         return (position[0] + direction[0], position[1] + direction[1])
+        
+    def print_map(self, map: list):
+                
+        print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+        for row in map:
+            for cell in row:
+                print(cell, end="")
+            print()
+        print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+
+    def get_string_map(self, map: list):
+
+        return "".join("".join(row) for row in map)
 
 class Robot:
 
@@ -57,25 +70,29 @@ bathroom_height = 103
 #bathroom_height = 7
 
 middle_x, middle_y = bathroom_width // 2, bathroom_height // 2
-#print(f"Middle: {middle_x}, {middle_y}")
+print(f"Middle: {middle_x}, {middle_y}")
 first_quadrant_robot_count = 0
 second_quadrant_robot_count = 0
 third_quadrant_robot_count = 0
 fourth_quadrant_robot_count = 0
 seconds_elapsed = 0
+seconds_at_christmas_tree = 0
 
-position_tracker = {}
+map = [["." for _ in range(bathroom_width)] for _ in range(bathroom_height)]
 
-for robot_number, robot in enumerate(robots):
+for print_robot in robots:
+    x, y = print_robot.position
+    map[y][x] = "#"
+
+for second in range(100):
 
     #print(f"Moving robot {robot_number}")
 
-    for second in range(100):
-
-        seconds_elapsed += 1
+    for robot_number, robot in enumerate(robots):
 
         #print(f"Second: {second + 1}")
         #print(f"Current Position: {robot.position}")
+        seconds_elapsed += 1
 
         robot_next_position = Navigate().get_next_position(robot.velocity, robot.position)
 
@@ -103,14 +120,27 @@ for robot_number, robot in enumerate(robots):
 
             robot_next_position = (next_x, next_y)
 
+            map_string = Navigate().get_string_map(map)
+            if "#" * 8 in map_string:
+                seconds_at_christmas_tree = seconds_elapsed
+                break
+
+        x, y = robot.position
+        map[y][x] = "."
 
         robot.position = robot_next_position
 
-        
+        x, y = robot.position
+        map[y][x] = "#"
+        map_string = Navigate().get_string_map(map)
 
+        if "#" * 8 in map_string:
+            seconds_at_christmas_tree = seconds_elapsed
+            break
 
     #print(f"Final Position: {robot.position} for robot {robot_number}")
 
+for robot in robots:
     if robot.position[0] < middle_x and robot.position[1] < middle_y:
         first_quadrant_robot_count += 1
 
@@ -124,11 +154,12 @@ for robot_number, robot in enumerate(robots):
         fourth_quadrant_robot_count += 1
 
 
-#print(first_quadrant_robot_count)
-#print(second_quadrant_robot_count)
-#print(third_quadrant_robot_count)
-#print(fourth_quadrant_robot_count)
+print(first_quadrant_robot_count)
+print(second_quadrant_robot_count)
+print(third_quadrant_robot_count)
+print(fourth_quadrant_robot_count)
 
 security_factor = first_quadrant_robot_count * second_quadrant_robot_count * third_quadrant_robot_count * fourth_quadrant_robot_count
-#print(f"Security Factor: {security_factor}")
+print(f"Security Factor: {security_factor}")
+print(f"Seconds at Christmas Tree: {seconds_at_christmas_tree}")
 
