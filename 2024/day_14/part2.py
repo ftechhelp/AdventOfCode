@@ -53,7 +53,7 @@ class Robot:
 raw_robots: list[str] = []
 robots: list[Robot] = []
 
-with open('input_data.txt') as f:
+with open('example.txt') as f:
     raw_robots = f.read().splitlines()
 
 for raw_robot in raw_robots:
@@ -139,6 +139,8 @@ for second in range(100):
             break
 
     #print(f"Final Position: {robot.position} for robot {robot_number}")
+
+#print(Navigate().get_string_map(map))
 
 for robot in robots:
     if robot.position[0] < middle_x and robot.position[1] < middle_y:
