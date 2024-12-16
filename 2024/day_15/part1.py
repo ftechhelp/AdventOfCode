@@ -63,9 +63,24 @@ class WarehouseMap:
             return "v"
         
     def print_map(self, movement: tuple[int, int]):
+        print = False
 
-        print(f"Movement: {self.translate_movement(movement)}")
-        Navigate().print_map(self.map)
+        if print:
+            print(f"Movement: {self.translate_movement(movement)}")
+            Navigate().print_map(self.map)
+
+    def calculate_box_gps_distances(self):
+
+        box_distances = []
+
+        for y, row in enumerate(self.map):
+
+            for x, cell in enumerate(row):
+
+                if cell == "O":
+                    box_distances.append(100 * y + x)
+
+        return sum(box_distances)
 
 
             
@@ -103,7 +118,7 @@ class WarehouseMap:
 
 raw_map = []
 
-with open('small_example.txt') as f:
+with open("input_data.txt") as f:
     raw_map = f.read().splitlines()
 
 is_robot_movements = False
@@ -129,8 +144,6 @@ for row in raw_map:
         
         robot.movements.extend(movements)
 
-        robot.movements = movements
-
         continue
 
     if row == "":
@@ -142,5 +155,7 @@ for row in raw_map:
 
 Navigate().print_map(map)
 warehouse = WarehouseMap(map, robot)
+print(robot)
 warehouse.do_warehouse_work()
-
+print(robot)
+print(f"Sum of all box distances: {warehouse.calculate_box_gps_distances()}")
