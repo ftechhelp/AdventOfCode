@@ -53,7 +53,7 @@ class Robot:
 raw_robots: list[str] = []
 robots: list[Robot] = []
 
-with open('example.txt') as f:
+with open('input_data.txt') as f:
     raw_robots = f.read().splitlines()
 
 for raw_robot in raw_robots:
@@ -84,13 +84,13 @@ for print_robot in robots:
     x, y = print_robot.position
     map[y][x] = "#"
 
-for second in range(100):
+for second in range(10000):
 
     #print(f"Moving robot {robot_number}")
+    print(f"Second: {second + 1}")
 
     for robot_number, robot in enumerate(robots):
 
-        #print(f"Second: {second + 1}")
         #print(f"Current Position: {robot.position}")
         seconds_elapsed += 1
 
@@ -120,11 +120,6 @@ for second in range(100):
 
             robot_next_position = (next_x, next_y)
 
-            map_string = Navigate().get_string_map(map)
-            if "#" * 8 in map_string:
-                seconds_at_christmas_tree = seconds_elapsed
-                break
-
         x, y = robot.position
         map[y][x] = "."
 
@@ -132,11 +127,12 @@ for second in range(100):
 
         x, y = robot.position
         map[y][x] = "#"
-        map_string = Navigate().get_string_map(map)
 
-        if "#" * 8 in map_string:
-            seconds_at_christmas_tree = seconds_elapsed
-            break
+    map_string = Navigate().get_string_map(map)
+
+    if "#" * 10 in map_string:
+        Navigate().print_map(map)
+        break
 
     #print(f"Final Position: {robot.position} for robot {robot_number}")
 

@@ -3,7 +3,11 @@ sys.path.append("..")
 from Libraries.navigate import Navigate
 
 class Robot:
-    
+
+    def __init__(self, starting_position: tuple[int, int], movements: list[str]):
+
+        self.position = starting_position
+        self.movements = []
 
 raw_map = []
 
