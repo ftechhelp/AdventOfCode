@@ -130,6 +130,10 @@ class WarehouseMap:
             visited = set()
 
             for box_side in box_sides:
+
+                if box_side in visited:
+                    continue
+                
                 position_in_front = Navigate().get_next_position(direction, box_side)
                 Navigate().swap_positions(self.map, box_side, position_in_front)
                 visited.add(box_side)
