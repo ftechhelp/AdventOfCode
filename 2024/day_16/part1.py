@@ -3,6 +3,40 @@ from collections import deque
 sys.path.append("..")
 from Libraries.navigate import Navigate
 
+class Reindeer:
+
+    def __init__(self, map: list):
+
+        self.map = map
+        self.position = Navigate().get_position_of_item(map, "S")
+        self.direction_facing = Navigate().right
+
+    def turn_90_degrees(self):
+        direction_index = (Navigate().directions.index(self.direction_facing) + 1) % 4
+        self.direction_facing = Navigate().directions[direction_index]
+
+    def move(self, position: tuple):
+        Navigate().swap_positions(self.map, self.position, position)
+        self.position = position
+
+class ReindeerMazeMap:
+
+    def __init__(self, map: list):
+
+        self.reindeer = Reindeer(map)
+        self.end_tile = Navigate().get_position_of_item(map, "E")
+        self.lowest_score = 0
+
+    def get_lowest_score(self):
+
+        visited = set()
+        start_position = self.reindeer.position
+        self.lowest_score = self.walk()
+    
+    def walk(self) -> int:
+        pass
+
+
 raw_map = []
 map = []
 
@@ -12,39 +46,5 @@ with open('example.txt') as f:
 for row in raw_map:
     map.append(list(row))
 
-reindeer_position = Navigate().get_position_of_item(map, "S")
-end_tile_postion = Navigate().get_position_of_item(map, "E")
-end_scores = []
+Navigate().print_map(map)
 
-queue = deque([(reindeer_position, Navigate().right, 0)])
-visited = set()
-
-while queue:
-
-    position, direction, cost = queue.popleft()
-
-    print(f"Position: {position} Direction: {direction} Cost: {cost}")
-
-    if position == end_tile_postion:
-        print(f"We have reached the end with a cost of {cost}")
-        end_scores.append(cost)
-        print(f"End Scores: {end_scores}")
-        continue
-
-    if position in visited:
-        continue
-
-    visited.add(position)
-
-    for dx, dy in Navigate().directions:
-
-        next_position = Navigate().get_next_position((dx, dy), position)
-
-        print(f"Next Position: {next_position}")
-
-        if Navigate().get_item_at_position(map, next_position) != "#":
-            cost = cost + 1 if (dx, dy) == direction else cost + 1001
-            queue.append((next_position, direction, cost))
-            print(f"Queue: {queue}")
-
-print(min(end_scores))
