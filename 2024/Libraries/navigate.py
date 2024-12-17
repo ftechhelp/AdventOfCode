@@ -12,10 +12,17 @@ class Navigate:
 
         return (0 <= x < len(map[0]) and 0 <= y < len(map))
         
-    def get_next_position(self, direction, position) -> tuple[int, int]:
+    def get_next_position(self, direction: tuple, position: tuple, number_of_moves: int = 1) -> tuple[int, int]:
 
-        return (position[0] + direction[0], position[1] + direction[1])
+        x, y = position
+        direction_x, direction_y = direction
+
+        return (x + direction_x * number_of_moves, y + direction_y * number_of_moves)
     
+    def opposite_direction(self, direction: tuple) -> tuple:
+
+        return (-direction[0], -direction[1])
+
     def print_map(self, map: list) -> None:
                     
         print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")

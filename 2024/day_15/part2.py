@@ -7,8 +7,8 @@ class Robot:
     def __init__(self, starting_position: tuple[int, int]):
 
         self.position = starting_position
-        self.movements = []
-        self.movement_index = 0
+        self.movements: list[tuple[int, int]] = []
+        self.movement_index: int = 0
 
     def __str__(self):
         return f"Position: {self.position}, Movement Index: {self.movement_index}, Movements Left: {[str(m) for m in self.movements[self.movement_index:]]}"
@@ -32,7 +32,7 @@ class WarehouseMap:
                 self.print_map(movement)
                 continue
 
-            if next_item == "O":
+            if next_item == "[" or next_item == "]":
                 self.push_box(movement)
                 self.robot.movement_index += 1
                 self.print_map(movement)
@@ -63,9 +63,9 @@ class WarehouseMap:
             return "v"
         
     def print_map(self, movement: tuple[int, int]):
-        print = False
+        can_print = True
 
-        if print:
+        if can_print:
             print(f"Movement: {self.translate_movement(movement)}")
             Navigate().print_map(self.map)
 
@@ -82,43 +82,47 @@ class WarehouseMap:
 
         return sum(box_distances)
 
-
-            
-
     def push_box(self, direction: tuple[int, int]):
 
-        next_position = Navigate().get_next_position(direction, self.robot.position)
-        box_positions = []
+        if direction == Navigate().left or direction == Navigate().right:
+            other_side_of_box = Navigate().get_next_position(direction, self.robot.position, 2)
+            next_position = Navigate().get_next_position(direction, self.robot.position)
+            other_side_of_boxes = []
 
-        while Navigate().get_item_at_position(self.map, next_position) == "O":
+            while Navigate().get_item_at_position(self.map, other_side_of_box) == "]" or Navigate().get_item_at_position(self.map, other_side_of_box) == "[":
+                other_side_of_boxes.append(other_side_of_box)
+                next_position = Navigate().get_next_position(direction, other_side_of_box)
+                other_side_of_box = Navigate().get_next_position(direction, other_side_of_box, 2)
 
-            box_positions.append(next_position)
-            next_position = Navigate().get_next_position(direction, next_position)
+            if Navigate().get_item_at_position(self.map, next_position) == "#":
+                return
+            
+            for other_side_of_box in reversed(other_side_of_boxes):
+                replace_right_x, replace_right_y = other_side_of_box
+                replace_left_x, replace_left_y = Navigate().get_next_position(direction, other_side_of_box)
+                empty_space_x, empty_space_y = Navigate().get_next_position(Navigate().opposite_direction(direction), other_side_of_box)
 
-        if Navigate().get_item_at_position(self.map, next_position) == "#":
-            return
-        
-        for box_position in reversed(box_positions):
-            box_x, box_y = box_position
-            replace_x, replace_y = next_position
+                self.map[empty_space_y][empty_space_x] = "."
+                self.map[replace_right_y][replace_right_x] = "]" if direction == Navigate().left else "["
+                self.map[replace_left_y][replace_left_x] = "[" if direction == Navigate().left else "]"
 
-            self.map[replace_y][replace_x] = "O"
-            self.map[box_y][box_x] = "."
+                next_position = (empty_space_x, empty_space_y)
 
-            next_position = box_position
+            robot_x, robot_y = self.robot.position
+            next_x, next_y = next_position
+            self.map[next_y][next_x] = "@"
+            self.map[robot_y][robot_x] = "."
 
-        robot_x, robot_y = self.robot.position
-        next_x, next_y = next_position
-        self.map[next_y][next_x] = "@"
-        self.map[robot_y][robot_x] = "."
+            self.robot.position = next_position
 
-        self.robot.position = next_position
+        elif direction == Navigate().up or direction == Navigate().down:
 
+            
         
 
 raw_map = []
 
-with open("example.txt") as f:
+with open("other_example.txt") as f:
     raw_map = f.read().splitlines()
 
 is_robot_movements = False
@@ -168,8 +172,8 @@ for row in raw_map:
 
 
 Navigate().print_map(map)
-#warehouse = WarehouseMap(map, robot)
-#print(robot)
-#warehouse.do_warehouse_work()
-#print(robot)
-#print(f"Sum of all box distances: {warehouse.calculate_box_gps_distances()}")
+warehouse = WarehouseMap(map, robot)
+print(robot)
+warehouse.do_warehouse_work()
+print(robot)
+print(f"Sum of all box distances: {warehouse.calculate_box_gps_distances()}")
