@@ -45,6 +45,17 @@ class Navigate:
                 if cell == item:
                     return (x, y)
                 
+    def swap_positions(self, map: list, position1: tuple, position2: tuple) -> None:
+
+        x1, y1 = position1
+        item_at_position_1 = map[y1][x1]
+        x2, y2 = position2
+        item_at_position_2 = map[y2][x2]
+
+
+        map[y1][x1] = item_at_position_2
+        map[y2][x2] = item_at_position_1
+                
     def get_item_at_position(self, map: list, position: tuple) -> str:
 
         x, y = position

@@ -11,7 +11,7 @@ class Robot:
         self.movement_index: int = 0
 
     def __str__(self):
-        return f"Position: {self.position}, Movement Index: {self.movement_index}, Movements Left: {[str(m) for m in self.movements[self.movement_index:]]}"
+        return f"Position: {self.position}, Movement Index: {self.movement_index} / {len(self.movements)}, Movements Left: {[str(m) for m in self.movements[self.movement_index:]]}"
 
 class WarehouseMap:
 
@@ -48,6 +48,9 @@ class WarehouseMap:
 
             self.print_map(movement)
 
+            if self.robot.movement_index == 100:
+                return
+
     def translate_movement(self, movement: tuple[int, int]):
 
         if movement == Navigate().left:
@@ -63,7 +66,7 @@ class WarehouseMap:
             return "v"
         
     def print_map(self, movement: tuple[int, int]):
-        can_print = True
+        can_print = True if self.robot.position[1] in [25, 26, 27] else False
 
         if can_print:
             print(f"Movement: {self.translate_movement(movement)}")
@@ -77,7 +80,7 @@ class WarehouseMap:
 
             for x, cell in enumerate(row):
 
-                if cell == "O":
+                if cell == "[":
                     box_distances.append(100 * y + x)
 
         return sum(box_distances)
@@ -108,21 +111,76 @@ class WarehouseMap:
 
                 next_position = (empty_space_x, empty_space_y)
 
-            robot_x, robot_y = self.robot.position
-            next_x, next_y = next_position
-            self.map[next_y][next_x] = "@"
-            self.map[robot_y][robot_x] = "."
+            Navigate().swap_positions(self.map, self.robot.position, next_position)
 
             self.robot.position = next_position
 
         elif direction == Navigate().up or direction == Navigate().down:
+            next_position = Navigate().get_next_position(direction, self.robot.position)
+            box_side = Navigate().get_item_at_position(self.map, next_position)
+            box_sides: list[tuple[int, int]] = self.get_box_sides_to_move(box_side, direction, next_position)
 
+            box_sides.reverse()
+
+            for box_side in box_sides:
+                wall_position = Navigate().get_next_position(direction, box_side)
+                if Navigate().get_item_at_position(self.map, wall_position) == "#":
+                    return
+
+            visited = set()
+
+            for box_side in box_sides:
+                position_in_front = Navigate().get_next_position(direction, box_side)
+                Navigate().swap_positions(self.map, box_side, position_in_front)
+                visited.add(box_side)
+
+            Navigate().swap_positions(self.map, self.robot.position, next_position)
+            self.robot.position = next_position
             
+    def get_box_sides_to_move(self, box_side: str, direction: tuple[int, int], position: tuple[int, int]) -> list[tuple[int, int]]:
+
+        box_sides_to_move = []
+        left_box_side = None
+        right_box_side = None
+        next_left_box_side = None
+        next_right_box_side = None
+
+        if box_side == "[":
+            left_box_side = position
+            right_box_side = Navigate().get_next_position(Navigate().right, position)
+
+        elif box_side == "]":
+            left_box_side = Navigate().get_next_position(Navigate().left, position)
+            right_box_side = position
+
+        else:
+            return []
+
+        #print(f"Left box side: {left_box_side}, Right box side: {right_box_side}")
+
+        box_sides_to_move.append(left_box_side)
+        box_sides_to_move.append(right_box_side)
+
+        #print(f"Box sides to move: {box_sides_to_move}")
+
+        next_left_box_side = Navigate().get_next_position(direction, left_box_side)
+        #print(f"Next left box side: {next_left_box_side}")
+
+        next_right_box_side = Navigate().get_next_position(direction, right_box_side)
+        #print(f"Next right box side: {next_right_box_side}")
+
+        if Navigate().get_item_at_position(self.map, next_left_box_side) == "]" or Navigate().get_item_at_position(self.map, next_right_box_side) == "[":
+            box_sides_to_move.extend(self.get_box_sides_to_move(Navigate().get_item_at_position(self.map, next_left_box_side), direction, next_left_box_side))
+        
+        if Navigate().get_item_at_position(self.map, next_right_box_side) == "]" or Navigate().get_item_at_position(self.map, next_right_box_side) == "[":
+            box_sides_to_move.extend(self.get_box_sides_to_move(Navigate().get_item_at_position(self.map, next_right_box_side), direction, next_right_box_side))
+        
+        return box_sides_to_move
         
 
 raw_map = []
 
-with open("other_example.txt") as f:
+with open("input_data.txt") as f:
     raw_map = f.read().splitlines()
 
 is_robot_movements = False
@@ -173,7 +231,7 @@ for row in raw_map:
 
 Navigate().print_map(map)
 warehouse = WarehouseMap(map, robot)
-print(robot)
 warehouse.do_warehouse_work()
+Navigate().print_map(map)
 print(robot)
 print(f"Sum of all box distances: {warehouse.calculate_box_gps_distances()}")
