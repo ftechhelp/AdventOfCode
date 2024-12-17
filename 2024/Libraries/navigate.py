@@ -61,3 +61,4 @@ class Navigate:
         x, y = position
 
         return map[y][x]
+
