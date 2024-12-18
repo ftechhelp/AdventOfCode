@@ -4,7 +4,7 @@ class Navigate:
     right = (1, 0)
     up = (0, -1)
     down = (0, 1)
-    directions = [left, right, up, down]
+    directions = [right, up, left, down]
 
     def is_valid_position(self, map: list, position: tuple) -> bool:
 
@@ -22,6 +22,14 @@ class Navigate:
     def opposite_direction(self, direction: tuple) -> tuple:
 
         return (-direction[0], -direction[1])
+    
+    def get_clockwise_direction(self, direction: tuple) -> tuple:
+
+        return self.directions[(self.directions.index(direction) + 1) % 4]
+    
+    def get_counter_clockwise_direction(self, direction: tuple) -> tuple:
+
+        return self.directions[(self.directions.index(direction) - 1) % 4]
 
     def print_map(self, map: list) -> None:
                     
