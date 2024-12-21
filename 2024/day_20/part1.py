@@ -35,15 +35,13 @@ class Racetrack:
         return -1  # return -1 if no path is found
 
     def picoseconds_saved_with_cheat(self, start, goal):
-        queue = deque([(start, 0, False)])
-        visited = set()
-        visited.add((start, False))
+        queue = deque([(start, 0, False, set((start, False)))])
 
         while queue:
 
             print(f"Queue Length: {len(queue)}")
 
-            (x, y), steps, cheat_used = queue.popleft()
+            (x, y), steps, cheat_used, visited = queue.popleft()
 
             if steps >= self.shortest_path_picoseconds:
                 continue
@@ -60,15 +58,15 @@ class Racetrack:
 
                     if grid[ny][nx] != "#":
                         visited.add((next_position, cheat_used))
-                        queue.append((next_position, steps + 1, cheat_used))
+                        queue.append((next_position, steps + 1, cheat_used, visited))
 
                     elif not cheat_used:
                         visited.add((next_position, True))
-                        queue.append((next_position, steps + 1, True))
+                        queue.append((next_position, steps + 1, True, visited))
 
 raw_grid = []
 
-with open("input_data.txt") as f:
+with open("example.txt") as f:
     raw_grid = f.read().splitlines()
 
 grid = [list(row) for row in raw_grid]
