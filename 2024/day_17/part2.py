@@ -131,7 +131,7 @@ def find_self_replicating_A(is_example: bool = True):
 
     program = [0,3,5,4,3,0] if is_example else [2,4,1,5,7,5,4,5,0,3,1,6,5,5,3,0]
     
-    for initial_A in range(100000000, 1000000000):
+    for initial_A in range(4000000000, 8000000000):
 
         if is_example:
             if initial_A == 2024:
