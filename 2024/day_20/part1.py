@@ -13,7 +13,7 @@ class Racetrack:
         self.shortest_paths_picoseconds_saved_with_cheat = Counter() # key: picoseconds saved, value: count
         
 
-    def _shortest_path(self, start, goal):
+    def _shortest_path(self, start, goal) -> int:
         queue = deque([(start, 0)])
         visited = set()
         visited.add(start)
@@ -34,45 +34,30 @@ class Racetrack:
 
         return -1
 
-    def picoseconds_saved_with_cheat_path_count(self, start, goal, picoseconds_greater_than = 0) -> int:
+    def faster_paths_when_cheating(self, start, goal, picoseconds_greater_than = 0) -> int:
 
-        queue = deque([(start, 0, None, set([(start, None)]))]) # position, steps, cheat_pos, visited
+        picoseconds_saved = 0
+        faster_paths = Counter()
+        wall_total_count = len([cell for row in self.grid for cell in row if cell == "#"])
+        wall_count = 0
 
-        while queue:
-            print(f"Queue Length: {len(queue)}")
+        for y, row in enumerate(self.grid):
+            for x, cell in enumerate(row):
 
-            (x, y), steps, cheat_pos, visited = queue.popleft()
+                if cell == "#":
+                    wall_count += 1
+                    print(f"Wall Count: {wall_count}/{wall_total_count}")
+                    self.grid[y][x] = "."
+                    shortest_path_steps = self._shortest_path(start, goal)
+                    picoseconds_saved = self.shortest_path_picoseconds - shortest_path_steps
+                    #print(f"Picoseconds Saved: {picoseconds_saved}")
+                    
+                    if picoseconds_saved >= picoseconds_greater_than:
+                        faster_paths[picoseconds_saved] += 1
 
-            # reached goal within specified picoseconds
-            if (x, y) == goal:
-                self.shortest_paths_picoseconds_saved_with_cheat[self.shortest_path_picoseconds - steps] += 1
-                continue
-            
-            #stop if not faster then fastest non cheating time or 
-            if steps >= self.shortest_path_picoseconds or self.shortest_path_picoseconds - steps < picoseconds_greater_than:
-                continue
+                    self.grid[y][x] = "#"
 
-            for direction_x, direction_y in Navigate().directions:
-                next_position = Navigate().get_next_position((direction_x, direction_y), (x, y))
-                nx, ny = next_position
-
-                if Navigate().is_valid_position(self.grid, next_position):
-
-                    if grid[ny][nx] != "#":
-                        new_state = (next_position, cheat_pos)
-
-                        if new_state not in visited:
-                            new_visited = visited | {new_state}
-                            queue.append((next_position, steps + 1, cheat_pos, new_visited))
-
-                    elif cheat_pos is None:  
-                        new_state = (next_position, next_position)
-                        
-                        if new_state not in visited:
-                            new_visited = visited | {new_state}
-                            queue.append((next_position, steps + 1, next_position, new_visited))
-
-        return sum(self.shortest_paths_picoseconds_saved_with_cheat.values())
+        return sum(faster_paths.values())
 
 raw_grid = []
 
@@ -86,5 +71,5 @@ racetrack = Racetrack(grid)
 shortest_path_steps = racetrack.shortest_path_picoseconds
 print(f"Shortest Path Steps: {shortest_path_steps}")
 
-shortest_path_picosends_saved_with_cheat_path_count = racetrack.picoseconds_saved_with_cheat_path_count(racetrack.start, racetrack.end, 100)
-print(f"Shortest Path Picoseconds Saved with Cheat Path Count: {shortest_path_picosends_saved_with_cheat_path_count}")
+faster_paths_when_cheating = racetrack.faster_paths_when_cheating(racetrack.start, racetrack.end, 100)
+print(f"Faster Paths When Cheating: {faster_paths_when_cheating}")
