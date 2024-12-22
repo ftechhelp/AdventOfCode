@@ -34,13 +34,25 @@ class ClawMachine:
         prize = machine_makeup[2]
         prize_x = int("10000000000000" + prize.split(",")[0].split(" ")[1].split("=")[1])
         prize_y = int("10000000000000" + prize.split(",")[1].split("=")[1])
-
-
         self.a_button = Button("A", a_button)
         self.b_button = Button("B", b_button)
         self.money_put_in = 0
         self.prize = (prize_x, prize_y)
         self.claw_position = (0, 0)
+
+    def greatest_common_divisor(self, a, b):
+        
+        while b:
+            a, b = b, a % b
+        return a
+
+    def can_reach_prize(self):
+
+        x_gcd = self.greatest_common_divisor(self.a_button.x, self.b_button.x)
+        y_gcd = self.greatest_common_divisor(self.a_button.y, self.b_button.y)
+        target_x, target_y = self.prize
+        
+        return target_x % x_gcd == 0 and target_y % y_gcd == 0
 
     def __str__(self):
         return f"{self.a_button}, {self.b_button}, Money: {self.money_put_in}, Prize: {self.prize}, Claw Position: {self.claw_position}"
@@ -76,6 +88,9 @@ for machine_number, machine in enumerate(machines):
 
     while queue:
         x, y, cost = queue.popleft()
+
+        if not machine.can_reach_prize():
+            continue
 
         if (x, y) == machine.prize:
             print(f"Machine number {machine_number} Won!")
