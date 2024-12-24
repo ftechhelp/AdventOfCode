@@ -8,59 +8,40 @@ def get_cheapest_cost(map: list):
     start = Navigate().get_position_of_item(map, "S")
     end = Navigate().get_position_of_item(map, "E")
 
-    queue = [(0, start[0], start[1], Navigate().right, [(start[0], start[1])])] #cost, x, y, direction, path
-    visited = {} # (x, y, direction): cost
-    min_cost = float('inf')
-    shortest_paths = []
+    queue = [(0, start[0], start[1], Navigate().right)] #cost, x, y, direction
+    visited = set()
 
     while queue:
-        cost, x, y, direction, path = heapq.heappop(queue)
+        cost, x, y, direction = heapq.heappop(queue)
 
-        print(f"Queue length: {len(queue)}")
-
-        if cost > min_cost:
-            continue
+        visited.add((x, y, direction))
 
         if (x, y) == end:
-            if cost < min_cost:
-                min_cost = cost
-                shortest_paths = [path]
-            elif cost == min_cost:
-                shortest_paths.append(path)
-            continue
-        
-        state = (x, y, direction)
-        if state in visited and visited[state] < cost:
-            continue
+            return cost
 
-        visited[state] = cost
+        forward = (cost + 1, Navigate().get_next_position(direction, (x, y)), direction)
+        clockwise = (cost + 1000, (x, y), Navigate().get_clockwise_direction(direction))
+        counter_clockwise = (cost + 1000, (x, y), Navigate().get_counter_clockwise_direction(direction))
 
-        forward = Navigate().get_next_position(direction, (x, y))
+        for next_cost, next_position, next_direction in [forward, clockwise, counter_clockwise]:
 
-        if Navigate().is_valid_position(map, forward) and Navigate().get_item_at_position(map, forward) != "#":
-            new_path = path + [forward]
-            heapq.heappush(queue, (cost + 1, forward[0], forward[1], direction, new_path))
+            if Navigate().get_item_at_position(map, next_position) == "#": continue
 
-        for rotation_cost in [1000, 1000]:
-            clockwise_direction = Navigate().get_clockwise_direction(direction)
-            heapq.heappush(queue, (cost + rotation_cost, x, y, clockwise_direction, path[:]))
+            if (next_position[0], next_position[1], next_direction) in visited: continue
 
-            counter_clockwise_direction = Navigate().get_counter_clockwise_direction(direction)
-            heapq.heappush(queue, (cost + rotation_cost, x, y, counter_clockwise_direction, path[:]))
+            heapq.heappush(queue, (next_cost, next_position[0], next_position[1], next_direction))
 
-    if not shortest_paths:
-        return -1
-
-    unique_tiles = set()
-    for path in shortest_paths:
-        unique_tiles.update(path)
-
-    return len(unique_tiles)
+    return -1
 
 raw_map = []
 map = []
 
-with open('example.txt') as f:
+with open('input_data.txt') as f:
     raw_map = f.read().splitlines()
 
 print(get_cheapest_cost(raw_map))
+
+
+
+
+
