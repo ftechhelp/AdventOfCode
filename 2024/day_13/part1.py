@@ -71,16 +71,16 @@ cheapest_cost = Counter()
 
 for machine_number, machine in enumerate(machines):
 
-    queue = deque([(0, 0, 0)])  # x, y, cost
+    queue = deque([(0, 0, 0, 0, 0)])  # x, y, cost, a_button_presses, b_button_presses
     visited = set((0, 0))
 
     while queue:
-        x, y, cost = queue.popleft()
+        x, y, cost, a_button_presses, b_button_presses = queue.popleft()
 
         if (x, y) == machine.prize:
             print(f"Machine number {machine_number} Won!")
             print(f"Cost: {cost}")
-            print(machine)
+            print(f"Machine Number: {machine_number}, A Button Presses: {a_button_presses}, B Button Presses: {b_button_presses}")
 
             if cheapest_cost[machine_number] == 0 or cost < cheapest_cost[machine_number]:
                 cheapest_cost[machine_number] = cost
@@ -88,17 +88,22 @@ for machine_number, machine in enumerate(machines):
         #A button
         next_x, next_y = x + machine.a_button.x, y + machine.a_button.y
         next_cost = cost + machine.a_button.cost
+        next_a_button_presses = a_button_presses + 1
+        next_b_button_presses = b_button_presses
 
         if (next_x, next_y) not in visited and next_x <= machine.prize[0] and next_y <= machine.prize[1]:
-            queue.append((next_x, next_y, next_cost))
+            queue.append((next_x, next_y, next_cost, next_a_button_presses, next_b_button_presses))
+            
             visited.add((next_x, next_y))
 
         #B button
         next_x, next_y = x + machine.b_button.x, y + machine.b_button.y
         next_cost = cost + machine.b_button.cost
+        next_a_button_presses = a_button_presses
+        next_b_button_presses = b_button_presses + 1
 
         if (next_x, next_y) not in visited and next_x <= machine.prize[0] and next_y <= machine.prize[1]:
-            queue.append((next_x, next_y, next_cost))
+            queue.append((next_x, next_y, next_cost, next_a_button_presses, next_b_button_presses))
             visited.add((next_x, next_y))
 
 print(f"Cheapest cost for all claw machines is {sum(cheapest_cost.values())}")

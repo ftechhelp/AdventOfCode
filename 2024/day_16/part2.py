@@ -9,12 +9,13 @@ def get_cheapest_cost(map: list):
     end = Navigate().get_position_of_item(map, "E")
 
     queue = [(0, start[0], start[1], Navigate().right)] #cost, x, y, direction
-    visited = set()
+    best_tile_cost = {}
+    lowest_cost = float("inf")
 
     while queue:
         cost, x, y, direction = heapq.heappop(queue)
 
-        visited.add((x, y, direction))
+        best_tile_cost[(x, y, direction)] = cost
 
         if (x, y) == end:
             return cost
