@@ -8,17 +8,33 @@ def get_cheapest_cost(map: list):
     start = Navigate().get_position_of_item(map, "S")
     end = Navigate().get_position_of_item(map, "E")
 
-    queue = [(0, start[0], start[1], Navigate().right)] #cost, x, y, direction
+    queue = [(0, start[0], start[1], Navigate().right, [(start[0], start[1])])] #cost, x, y, direction, path
     best_tile_cost = {}
     lowest_cost = float("inf")
+    best_path_tiles = set()
 
     while queue:
-        cost, x, y, direction = heapq.heappop(queue)
 
-        best_tile_cost[(x, y, direction)] = cost
+        print(f"Queue size: {len(queue)}")
+
+        cost, x, y, direction, path = heapq.heappop(queue)
+
+        if cost > lowest_cost:
+            continue
+
+        if (x, y, direction) not in best_tile_cost:
+            best_tile_cost[(x, y, direction)] = cost
+        elif cost > best_tile_cost[(x, y, direction)]:
+            continue
 
         if (x, y) == end:
-            return cost
+            if cost < lowest_cost:
+                lowest_cost = cost
+                best_path_tiles = set(path)
+                continue
+            elif cost == lowest_cost:
+                best_path_tiles.update(path)
+                continue
 
         forward = (cost + 1, Navigate().get_next_position(direction, (x, y)), direction)
         clockwise = (cost + 1000, (x, y), Navigate().get_clockwise_direction(direction))
@@ -28,11 +44,9 @@ def get_cheapest_cost(map: list):
 
             if Navigate().get_item_at_position(map, next_position) == "#": continue
 
-            if (next_position[0], next_position[1], next_direction) in visited: continue
+            heapq.heappush(queue, (next_cost, next_position[0], next_position[1], next_direction, path + [(next_position[0], next_position[1])]))
 
-            heapq.heappush(queue, (next_cost, next_position[0], next_position[1], next_direction))
-
-    return -1
+    return len(best_path_tiles)
 
 raw_map = []
 map = []
