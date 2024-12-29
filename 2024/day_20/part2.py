@@ -44,6 +44,9 @@ class Racetrack:
 
             (x, y), steps, direction, hack_picoseconds, cheat_started = heapq.heappop(queue)
 
+            if steps >= self.shortest_path_picoseconds:
+                continue
+
             if (x, y, direction) not in tiles_over_shortest_path:
                 tiles_over_shortest_path[(x, y, direction)] = steps
             elif tiles_over_shortest_path[(x, y, direction)] >= self.shortest_path_picoseconds:
